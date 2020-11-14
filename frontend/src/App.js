@@ -45,17 +45,17 @@ function Button(props) {
 
 function register(email) {
   // send to validate on the server
-  const payload = { email };
-  const request = new Request("http://localhost:5000/validate", {
+  const payload = { email: email };
+  const request = new Request("/validate", {
     method: "POST",
-    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   });
   return fetch(request).then(response => {
     if (response.status === 200) {
       return response.text();
     } else {
-      throw new Error("Error Sending email");
+      console.log(response.error);
     }
   });
 }
@@ -74,6 +74,7 @@ class RegistrationForm extends React.Component {
       return;
     }
     const email = this.email.current.state.value;
+    console.log(email);
     register(email)
       .then(console.log)
       .catch(console.error);

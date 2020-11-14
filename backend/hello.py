@@ -14,9 +14,13 @@ def hello_world():
 
 @app.route('/validate', methods=['POST'])
 def validate():
-    regex = r"[\w]+@[\w]+\.[\w]+"
-    email = request.form["email"]
-    if not re.fullmatch(regex, email):
-        return "Email invalid"
-    else:
-        return "valid"
+    try:
+        regex = r"[\w]+@[\w]+\.[\w]+"
+        print(request.json)
+        email = request.json["email"]
+        if not re.fullmatch(regex, email):
+            return "Email invalid"
+        else:
+            return "valid"
+    except:
+        return "e"
