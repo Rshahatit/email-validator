@@ -12,35 +12,60 @@ function getIndicatorColor(state) {
   return state.valid ? "green" : "red";
 }
 
-class Input extends React.Component {
-  constructor() {
-    super();
-    this.state = { valid: null };
-  }
-  validate = event => {
-    const value = event.target.value;
-    const valid = validator[this.props.type](value);
-    this.setState({ value, valid });
-  };
-  render() {
-    return (
-      <label>
-        {this.props.label}
-        <input onChange={this.validate} type={this.props.type} />
-        <div
-          className="indicator"
-          style={{
-            height: "20px",
-            width: "20px",
-            backgroundColor: getIndicatorColor(this.state)
-          }}
-        ></div>
-      </label>
-    );
-  }
+function Input(props) {
+  return (
+    <label>
+      {props.label}
+      <input
+        type={props.type}
+        value={props.value}
+        onChange={event => props.onChange(props.name, event)}
+      />
+      <div
+        className="indicator"
+        style={{
+          height: "20px",
+          width: "20px",
+          backgroundColor: getIndicatorColor(props)
+        }}
+      ></div>
+    </label>
+  );
 }
+
+// class Input extends React.Component {
+//   constructor() {
+//     super();
+//     this.state = { valid: null };
+//   }
+//   validate = event => {
+//     const value = event.target.value;
+//     const valid = validator[this.props.type](value);
+//     this.setState({ value, valid }, () => {
+//       if (this.props.onChange) {
+//         this.props.onChange();
+//       }
+//     });
+//   };
+//   render() {
+//     return (
+//       <label>
+//         {this.props.label}
+//         <input onChange={this.validate} type={this.props.type} />
+//         <div
+//           className="indicator"
+//           style={{
+//             height: "20px",
+//             width: "20px",
+//             backgroundColor: getIndicatorColor(this.state)
+//           }}
+//         ></div>
+//       </label>
+//     );
+//   }
+// }
 function Button(props) {
-  return <button>{props.title} </button>;
+  return <button disabled={props.disabled}>{props.title} </button>;
 }
 
 function register(email) {
@@ -62,28 +87,48 @@ function register(email) {
 class RegistrationForm extends React.Component {
   constructor(props) {
     super(props);
-    this.email = React.createRef();
+    this.state = {
+      email: {
+        value: "",
+        valid: null
+      }
+    };
   }
 
   handleRegistration = event => {
     event.preventDefault();
     event.stopPropagation();
-    const hasValidParams = this.email.current.state.valid;
+    const hasValidParams = this.state.email.valid;
     if (!hasValidParams) {
       console.error("Invalid Parameters");
       return;
     }
-    const email = this.email.current.state.value;
+    const email = this.state.email.value;
     console.log(email);
     register(email)
       .then(console.log)
       .catch(console.error);
   };
+
+  handleInputChange = (name, event) => {
+    const value = event.target.value;
+    const valid = validator[name](value);
+    this.setState({
+      [name]: { value, valid }
+    });
+  };
   render() {
     return (
       <form onSubmit={this.handleRegistration}>
-        <Input lable="Email" type="email" ref={this.email} />
-        <Button title="Validate" />
+        <Input
+          lable="Email"
+          type="email"
+          name="email"
+          value={this.state.email.value}
+          valid={this.state.email.valid}
+          onChange={this.handleInputChange}
+        />
+        <Button title="Validate" disabled={!this.state.email.valid} />
       </form>
     );
   }
